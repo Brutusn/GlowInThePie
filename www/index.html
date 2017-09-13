@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="NL-nl">
+    <head>
+        <meta name="robots" content="none">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, user-scalable=yes">
+
+        <meta name="theme-color" content="#1e5252" />
+
+        <title>Glow in the π</title>
+
+        <link href="/css/stylesheet.css" rel="stylesheet">
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script defer src="/js/script.js"></script>
+    </head>
+<body>
+    <header><h1>Glow in the π</h1></header>
+    <article id="dashboard">
+
+    </article>
+    <article id="admin">
+        <section>
+            <h2>Opzetten nieuw spel:</h2>
+            <form id="new-game" class="admin-form" action="#" method="post">
+                <p>Veld leeg laten geeft standaard waarde.</p>
+                <label><span>Rondes: </span><input data-field type="number" placeholder="3" name="rounds" /></label>
+                <label><span>Rondetijd (min): </span><input data-field type="number" placeholder="30" name="roundTime" /></label>
+                <label><span>Spelnaam: </span><input data-field type="text" placeholder="jota" name="roundName" /></label>
+                <label><span>Team 1: </span><input data-field type="text" placeholder="Smokkelaars" name="team1.name" /></label>
+                <label><span>Team 2: </span><input data-field type="text" placeholder="Douaniers" name="team2.name" /></label>
+                <label><span>Punten (r, g, b): </span><input data-field type="text" placeholder="1, 5, 9" name="points" /></label>
+                <input type="submit" value="Nieuw spel" name="new" />
+            </form>
+        </section><section>
+            <h2>Spellen wachtrij</h2>
+            <ul class="games-list" id="games-queue"></ul>
+        </section><section>
+            <h2>Actieve spellen</h2>
+            <ul class="games-list" id="games-active"></ul>
+        </section>
+    </article>
+    <article id="station">
+        <h2>Post Punten App</h2>
+        <div class="small-status"></div>
+        <section id="team1">
+            <h3 class="team-name"></h3>
+            <div><button data-action="team1:red:plus">+</button><span>Rood/Roze</span><button data-action="team1:red:min">-</button></div>
+            <div><button data-action="team1:green:plus">+</button><span>Groen/Geel</span><button data-action="team1:green:min">-</button></div>
+            <div><button data-action="team1:blue:plus">+</button><span>Blauw/Paars</span><button data-action="team1:blue:min">-</button></div>
+        </section>
+        <section id="team2">
+            <h3 class="team-name"></h3>
+            <div><button data-action="team2:red:plus">+</button><span>Rood/Roze</span><button data-action="team2:red:min">-</button></div>
+            <div><button data-action="team2:green:plus">+</button><span>Groen/Geel</span><button data-action="team2:green:min">-</button></div>
+            <div><button data-action="team2:blue:plus">+</button><span>Blauw/Paars</span><button data-action="team2:blue:min">-</button></div>
+        </section>
+    </article>
+    </body>
+</html>

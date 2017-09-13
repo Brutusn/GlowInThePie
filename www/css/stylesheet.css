@@ -1,0 +1,13 @@
+html {
+    background-color: tomato;
+}
+
+
+.admin-form label {
+    display: block;
+}
+.admin-form label span {
+    display: inline-block;
+    width: 40%;
+    min-width: 10em;
+}
