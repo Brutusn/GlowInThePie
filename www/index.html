@@ -13,9 +13,11 @@
         <link href="/css/stylesheet.css" rel="stylesheet">
 
         <script src="/socket.io/socket.io.js"></script>
+        <script defer src="/js/messagemodal.js"></script>
         <script defer src="/js/script.js"></script>
     </head>
 <body>
+    <div class="modal-curtain hidden"><div id="modal" class="modal"><p id="modal-content"></p></div></div>
     <header><h1>Glow in the π</h1></header>
     <article id="dashboard">
 
@@ -42,20 +44,27 @@
         </section>
     </article>
     <article id="station">
+        <div>
+            <h2>Kies een spel</h2>
+            <ul class="games-list" id="games-picker"></ul>
+        </div>
+
         <h2>Post Punten App</h2>
         <div class="small-status"></div>
-        <section id="team1">
-            <h3 class="team-name"></h3>
-            <div><button data-action="team1:red:plus">+</button><span>Rood/Roze</span><button data-action="team1:red:min">-</button></div>
-            <div><button data-action="team1:green:plus">+</button><span>Groen/Geel</span><button data-action="team1:green:min">-</button></div>
-            <div><button data-action="team1:blue:plus">+</button><span>Blauw/Paars</span><button data-action="team1:blue:min">-</button></div>
-        </section>
-        <section id="team2">
-            <h3 class="team-name"></h3>
-            <div><button data-action="team2:red:plus">+</button><span>Rood/Roze</span><button data-action="team2:red:min">-</button></div>
-            <div><button data-action="team2:green:plus">+</button><span>Groen/Geel</span><button data-action="team2:green:min">-</button></div>
-            <div><button data-action="team2:blue:plus">+</button><span>Blauw/Paars</span><button data-action="team2:blue:min">-</button></div>
-        </section>
+        <span id="station-delegation">
+            <section id="team1">
+                <h3 class="team-name"></h3>
+                <div><button data-action="team1:red:plus">+</button><span>Rood/Roze</span><button data-action="team1:red:min">-</button></div>
+                <div><button data-action="team1:green:plus">+</button><span>Groen/Geel</span><button data-action="team1:green:min">-</button></div>
+                <div><button data-action="team1:blue:plus">+</button><span>Blauw/Paars</span><button data-action="team1:blue:min">-</button></div>
+            </section>
+            <section id="team2">
+                <h3 class="team-name"></h3>
+                <div><button data-action="team2:red:plus">+</button><span>Rood/Roze</span><button data-action="team2:red:min">-</button></div>
+                <div><button data-action="team2:green:plus">+</button><span>Groen/Geel</span><button data-action="team2:green:min">-</button></div>
+                <div><button data-action="team2:blue:plus">+</button><span>Blauw/Paars</span><button data-action="team2:blue:min">-</button></div>
+            </section>
+        </span>
     </article>
     </body>
 </html>

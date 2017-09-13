@@ -23,6 +23,7 @@ const socket = io(location.host);
 
 socket.on('growl', (data) => {
     console.info(data);
+    modal.message(data);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,20 +31,21 @@ socket.on('growl', (data) => {
 ////////////////////////////////////////////////////////////////////////////////
 
 document.getElementById('games-queue').onclick = (evt) => {
-    if (evt.target.nodeName === 'BUTTON') {
-        const id = evt.target.getAttribute('data-start');
-        let obj = {
-            id: id
-        };
-
-        appendPassword(obj);
-
-        socket.emit('game:start', obj);
-
-        // Remove the clicked LI item.
-        evt.target.parentNode.parentNode.removeChild(evt.target.parentNode);
+    if (evt.target.nodeName !== 'BUTTON') {
+        return;
     }
-}
+
+    let obj = {
+        id: evt.target.getAttribute('data-start')
+    };
+
+    appendPassword(obj);
+
+    socket.emit('game:start', obj);
+
+    // Remove the clicked LI item.
+    evt.target.parentNode.parentNode.removeChild(evt.target.parentNode);
+};
 
 function fillGames (data, ulId, addButton = true) {
     const ul = document.getElementById(ulId);
@@ -65,16 +67,34 @@ function fillGames (data, ulId, addButton = true) {
         ul.appendChild(li);
     }
 }
+function fillPicker (data, ulId, active) {
+    const ul = document.getElementById(ulId);
+    let li = ul.querySelector(`[data-game-id="${data.id}"]`);
+    let append = false;
 
-socket.on('game:existing:queue', (data) => {
-    fillGames(data, 'games-queue', true);
-});
-socket.on('game:existing:active', (data) => {
-    fillGames(data, 'games-active', false);
+    if (li === null) {
+        li = document.createElement('li');
+        append = true;
+    }
+
+    li.innerHTML = `<b>${data.name}</b> (${active ? 'gestart' : 'niet gestart'})`;
+    li.setAttribute('data-game-id', data.id);
+
+    if (append) {
+        ul.appendChild(li);
+    }
+}
+
+socket.on('game:existing', (data) => {
+    const elementId = data.active ? 'games-active' : 'games-queue';
+
+    fillGames(data, elementId, !data.active);
+    fillPicker(data, 'games-picker', data.active);
 });
 
 socket.on('game:initialized', (data) => {
     fillGames(data, 'games-queue', true);
+    fillPicker(data, 'games-picker', data.active);
 });
 
 document.getElementById('new-game').onsubmit = (evt) => {
@@ -119,7 +139,35 @@ document.getElementById('new-game').onsubmit = (evt) => {
 ////////////////////////////////////////////////////////////////////////////////
 /// POINT INPUT BITS ///////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+document.getElementById('games-picker').onclick = (evt) => {
+    if (evt.target.nodeName !== 'LI') {
+        return;
+    }
+    let obj = {
+        id: evt.target.getAttribute('data-game-id')
+    };
 
+    appendPassword(obj);
+
+    socket.emit('game:focus', obj);
+
+    // If game is chosen, hide the picker.
+    evt.target.parentNode.parentNode.classList.add('hidden');
+}
+
+document.getElementById('station-delegation').onclick = (evt) => {
+    if (evt.target.nodeName !== 'BUTTON') {
+        return;
+    }
+
+    let obj = {
+        action: evt.target.getAttribute('data-action')
+    };
+
+    appendPassword(obj);
+
+    socket.emit('game:points', obj);
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DASHBOARD BITS /////////////////////////////////////////////////////////////

@@ -2,6 +2,10 @@ html {
     background-color: tomato;
 }
 
+.hidden {
+    display: none;
+}
+
 
 .admin-form label {
     display: block;

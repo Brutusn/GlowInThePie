@@ -2,6 +2,9 @@
  * General server code.
  */
 const http = require('http');
+const eventEmit = require('events');
+
+const emitter = new eventEmit();
 
 const express = require('express');
 const socketio = require('socket.io');
@@ -23,11 +26,24 @@ server.listen(8080);
 ////////////////////////////////////////////////////////////////////////////////
 // Socket.io events.
 io.on('connection', (socket) => {
+    function growl (type, message) {
+        socket.emit('growl', {
+            type,
+            message
+        });
+    }
     function checkPassword (obj) {
         if (obj.password === undefined) {
             return false;
         }
         return pass.compare(obj.password);
+    }
+    function isFalseData (obj) {
+        if (!obj instanceof Object || !checkPassword(obj)) {
+            growl('error', 'Ongeldig wachtwoord, jammer de bammer.');
+            return true;
+        }
+        return false;
     }
 
     // Send queued and active games.
@@ -38,16 +54,10 @@ io.on('connection', (socket) => {
                 continue;
             }
 
-            let emit = '';
-            if (spel.started) {
-                emit = 'game:existing:active';
-            } else {
-                emit = 'game:existing:queue';
-            }
-
-            socket.emit(emit, {
+            socket.emit('game:existing', {
                 id: spel.id,
-                name: spel.name
+                name: spel.name,
+                active: spel.started
             });
         }
     }
@@ -57,13 +67,12 @@ io.on('connection', (socket) => {
 
 
     socket.on('game:create', (data) => {
-        if (!data instanceof Object || !checkPassword(data)) {
-            socket.emit('growl', {
-                type: 'error',
-                message: 'Ongeldig wachtwoord, jammer de bammer.'
-            });
+        if (isFalseData(data)) {
             return;
         }
+
+        data.emitter = emitter;
+
         let newgame = new Game(data);
 
         // Check if game exists and is started, if that is the case, return that
@@ -76,16 +85,49 @@ io.on('connection', (socket) => {
 
         socket.emit('game:initialized', {
             id: newgame.id,
-            name: newgame.name
+            name: newgame.name,
+            active: newgame.started
         });
     });
 
+    socket.on('game:focus', (data) => {
+        if (isFalseData(data)) {
+            return;
+        }
+
+        if (games[data.id] === undefined || socket.focussedGame === data.id) {
+            return;
+        }
+
+        socket.focussedGame = data.id;
+
+        games[data.id].emitter.on('points-changed', (data) => {
+            if (socket.focussedGame !== data.id) {
+                // False listener, stop here.
+                return;
+            }
+            console.log(data);
+        });
+    });
+
+    socket.on('game:points', (data) => {
+        if (isFalseData(data)) {
+            return;
+        }
+
+        const gameId = socket.focussedGame;
+        const selectedGame = games[gameId]
+
+        if (selectedGame === undefined || !selectedGame.started) {
+            growl('error', 'Geselecteerd spel niet gevonden of gestart.');
+            return;
+        }
+
+        selectedGame.handlePoints(...data.action.split(':'));
+    });
+
     socket.on('game:start', (data) => {
-        if (!data instanceof Object || !checkPassword(data)) {
-            socket.emit('growl', {
-                type: 'error',
-                message: 'Ongeldig wachtwoord, jammer de bammer.'
-            });
+        if (isFalseData(data)) {
             return;
         }
 
@@ -95,10 +137,7 @@ io.on('connection', (socket) => {
 
             sendGames();
         } else {
-            socket.emit('growl', {
-                type: 'warning',
-                message: 'Onbekent spel, kan dus niet starten.'
-            });
+            growl('warning', 'Onbekent spel, kan dus niet starten.');
         }
     });
 });
