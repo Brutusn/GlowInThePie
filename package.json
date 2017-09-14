@@ -4,7 +4,7 @@
   "description": "Dashboard app for the real-life game",
   "main": "gitp.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "app": "node gitp.js"
   },
   "repository": {
     "type": "git",
