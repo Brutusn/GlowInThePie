@@ -1,8 +1,10 @@
 // The game handler code.
+const roundTimeStep = 1000;
+
 const defaultOptions = {
     rounds: 3,
     roundTime: 30,
-    roundName: 'jota',
+    roundName: 'JOTA-JOTI 2017',
     started: false,
     emitter: null,
     points: {
@@ -21,18 +23,56 @@ const defaultOptions = {
 function minutesToMs (min) {
     return min * 60 * 1000;
 }
+function msToMinute (ms) {
+    return parseInt((ms / (1000 * 60)) % 60);
+}
+function msToTime (duration) {
+    let seconds = parseInt((duration / 1000) % 60);
+    let minutes = msToMinute(duration);
+
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+    return minutes + ":" + seconds;
+}
 
 module.exports = class Game {
     constructor (options) {
         this.game = Object.assign({}, defaultOptions, options);
         this.currentRound = 0;
         this.previousRounds = [];
+
+        // Replaces all the non characters to nothing..
+        this.internalId = this.game.roundName.replace(/[^a-zA-Z0-9]+/g, '').toLowerCase();
+
+        // This is a fixed number.
+        this.roundTimeInMs = minutesToMs(this.game.roundTime);
+        this.roundTimer = null;
+        // This will be substracted untill 0;
+        this.roundTimeLeft = minutesToMs(this.game.roundTime);
+
+        // Warn about time left..
+        this.roundTimeLeftWarning = minutesToMs(5);
     }
 
     start () {
-        // TODO ADD SHITZZLE HERE.
         this.game.started = true;
         this.currentRound = 1;
+
+        this.startTimer();
+    }
+
+    // STATUS
+    smallStatus (points) {
+        if (!points) {
+            points = this.calculatePoints();
+        }
+
+        if (!this.started) {
+            return `Spel: ${this.name}, is nog niet gestart`;
+        }
+
+        return `Ronde: ${this.currentRound}. ${this.game.team1.name}: ${points.team1} - ${this.game.team2.name}: ${points.team2}`;
     }
 
     // POINTS...
@@ -40,9 +80,12 @@ module.exports = class Game {
         return ['team1', 'team2'].includes(team) && ['red', 'green', 'blue'].includes(colour) && ['plus', 'min'].includes(action);
     }
     pointsChanged () {
+        const points = this.calculatePoints()
+
         this.game.emitter.emit('points-changed', {
             id: this.id,
-            score: this.calculatePoints()
+            score: points,
+            smallStatus: this.smallStatus(points)
         });
     }
     hasPoint (team, colour) {
@@ -71,6 +114,14 @@ module.exports = class Game {
             team1: count(t1),
             team2: count(t2)
         };
+    }
+
+    calculateAllRounds () {
+        const obj = {};
+        for (let i = 0; i < this.game.rounds; i++) {
+            obj[i + 1] = this.calculatePoints(i + 1);
+        }
+        return obj;
     }
 
     addPoint (point) {
@@ -107,9 +158,58 @@ module.exports = class Game {
     }
 
     // TIMES
+    startTimer () {
+        if (this.roundTimer !== null) {
+            clearInterval(this.roundTimer);
+        }
 
+        console.log("Start new round:", this.currentRound);
+        // Resets timeleft..
+        this.roundTimeLeft = this.roundTimeInMs;
 
+        this.roundTimer = setInterval(() => {
+            this.roundTimeLeft -= roundTimeStep;
 
+            if (this.roundTimeLeft <= 0) {
+                // Stop the timer.
+                clearInterval(this.roundTimer);
+
+                // Check if we need to restart.
+                if (this.currentRound < this.game.rounds) {
+                    this.currentRound++;
+
+                    this.game.emitter.emit('round-changed', {
+                        id: this.id,
+                        round: this.currentRound
+                    });
+                    this.startTimer();
+                } else {
+                    this.game.emitter.emit('game-ended', {
+                        id: this.id,
+                        name: this.name
+                    });
+                    this.game.started = false;
+                }
+            } else {
+                if (this.roundTimeLeft === this.roundTimeLeftWarning) {
+                    this.game.emitter.emit('time-warning', {
+                        id: this.id,
+                        name: this.name,
+                        round: this.currentRound,
+                        minutes: this.minutesLeft
+                    });
+                }
+            }
+        }, roundTimeStep);
+    }
+
+    // GETTERS!
+    get teamNames () {
+        return {
+            team1: this.game.team1.name,
+            team2: this.game.team2.name,
+        }
+    }
     get emitter () {
         return this.game.emitter;
     }
@@ -117,9 +217,31 @@ module.exports = class Game {
         return this.game.roundName;
     }
     get id () {
-        return this.name.toLowerCase();
+        return this.internalId;
     }
     get started () {
         return this.game.started;
+    }
+    get statistics () {
+        // TODO Maybe append it...
+        return {
+            id: this.id,
+            name: this.name,
+            started: this.started,
+            round: this.currentRound,
+            teams: this.teamNames,
+            score: this.calculateAllRounds(),
+            totalTime: this.roundTimeInMs,
+            currentTime: this.timeLeft
+        };
+    }
+    get timeLeft () {
+        return this.roundTimeLeft;
+    }
+    get timeLeftReadable () {
+        return msToTime(this.roundTimeLeft);
+    }
+    get minutesLeft () {
+        return msToMinute(this.roundTimeLeft);
     }
 }

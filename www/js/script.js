@@ -19,12 +19,70 @@ if (!getLocalPass()) {
 ////////////////////////////////////////////////////////////////////////////////
 /// GLOBAL BITS ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+function getPercentage (sub, total) {
+    return Math.round((sub / total) * 100);
+}
+
 const socket = io(location.host);
 
 socket.on('growl', (data) => {
     console.info(data);
     modal.message(data);
 });
+
+socket.on('disconnect', () => {
+    modal.message({
+        type: 'error',
+        message: 'Verbinding met de server verbroken!'
+    });
+});
+
+socket.on('game:status:small', (data) => {
+    const elements = Array.from(document.getElementsByClassName('small-status'));
+
+    for (const element of elements) {
+        element.textContent = data;
+    }
+});
+
+// Force full screen height of dashboard.
+const header = document.querySelector('header');
+const dashboard = document.getElementById('dashboard');
+
+function setDashboardHeight () {
+    // - 2px for the border.
+    dashboard.style.height = window.innerHeight - Math.floor(header.clientHeight) - 2 + 'px';
+}
+setDashboardHeight();
+
+window.addEventListener('resize', setDashboardHeight);
+
+////////////////////////////////////////////////////////////////////////////////
+/// NAVIGATION BITS ////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+const pages = Array.from(document.querySelectorAll('article'));
+const navElement = document.querySelector('nav');
+
+navElement.onclick = (evt) => {
+    if (evt.target.nodeName === 'LI') {
+        for (const page of pages) {
+            page.classList.add('hidden');
+        }
+        document.getElementById(evt.target.getAttribute('data-action')).classList.remove('hidden');
+
+        navElement.classList.toggle('hidden');
+    }
+}
+
+document.getElementById('toggle-navigatie').onclick = (evt) => {
+    // First it will check if a page is visible, otherwise you can't hide the
+    // navigation, because that would be pointless.
+    const visiblePages = pages.filter((page) => !page.classList.contains('hidden')).length > 0;
+
+    if (visiblePages) {
+        navElement.classList.toggle('hidden');
+    }
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 /// ADMIN BITS /////////////////////////////////////////////////////////////////
@@ -42,6 +100,7 @@ document.getElementById('games-queue').onclick = (evt) => {
     appendPassword(obj);
 
     socket.emit('game:start', obj);
+    socket.emit('game:focus', obj);
 
     // Remove the clicked LI item.
     evt.target.parentNode.parentNode.removeChild(evt.target.parentNode);
@@ -139,6 +198,16 @@ document.getElementById('new-game').onsubmit = (evt) => {
 ////////////////////////////////////////////////////////////////////////////////
 /// POINT INPUT BITS ///////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+socket.on('game:team:names', (data) => {
+    for (const key in data) {
+        const element = document.getElementById(key).querySelector('.team-name');
+
+        if (element) {
+            element.textContent = data[key];
+        }
+    }
+});
+
 document.getElementById('games-picker').onclick = (evt) => {
     if (evt.target.nodeName !== 'LI') {
         return;
@@ -150,9 +219,13 @@ document.getElementById('games-picker').onclick = (evt) => {
     appendPassword(obj);
 
     socket.emit('game:focus', obj);
+    socket.emit('game:request:team:names', obj);
 
-    // If game is chosen, hide the picker.
-    evt.target.parentNode.parentNode.classList.add('hidden');
+    // Enable the section for the points.
+    evt.target.parentNode.parentNode.parentNode.nextElementSibling.classList.remove('section-disabled');
+
+    // If game is chosen, hide the picker section.
+    evt.target.parentNode.parentNode.parentNode.classList.add('hidden');
 }
 
 document.getElementById('station-delegation').onclick = (evt) => {
@@ -170,5 +243,136 @@ document.getElementById('station-delegation').onclick = (evt) => {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-/// DASHBOARD BITS /////////////////////////////////////////////////////////////
+/// DASHBOARD BITS - TIMER /////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+let gameStatic = null;
+
+class Timer {
+    constructor (obj) {
+        this.progressBar = document.getElementById('progress-bar');
+        this.timeDisplay = document.getElementById('remaining-time');
+
+        this.totalTime = obj.totalTime;
+        this.timeLeft = obj.currentTime;
+
+        this.timeStep = 1000;
+        this.timer = null;
+    }
+
+    startTimer () {
+        this.clearTimer();
+
+        this.timer = window.setInterval(() => {
+            this.timeLeft -= this.timeStep;
+
+            this.display();
+            this.setProgress();
+
+
+            if (this.timeLeft <= 0) {
+                this.clearTimer();
+            }
+        }, this.timeStep);
+    }
+
+    display () {
+        this.timeDisplay.textContent = this.msToTime(this.timeLeft);
+    }
+    setProgress () {
+        const partLeft = this.totalTime - this.timeLeft;
+        const percentage = getPercentage(partLeft, this.totalTime);
+
+        this.progressBar.style.width = percentage + '%';
+    }
+
+    clearTimer () {
+        if (this.timer) {
+            window.clearInterval(this.timer);
+        }
+    }
+
+    reset () {
+        this.timeLeft = this.totalTime;
+        this.startTimer();
+    }
+
+    msToMinute (ms) {
+        return parseInt((ms / (1000 * 60)) % 60);
+    }
+    msToTime (duration) {
+        let seconds = parseInt((duration / 1000) % 60);
+        let minutes = this.msToMinute(duration);
+
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+        return minutes + ":" + seconds;
+    }
+}
+
+let progressTimer = null;
+
+socket.on('game:initial:statistics', (data) => {
+    if (progressTimer === null) {
+        progressTimer = new Timer(data);
+    }
+
+    if (data.started) {
+        progressTimer.startTimer();
+    }
+
+    gameStatistic(data);
+});
+
+socket.on('game:started', () => {
+    if (progressTimer !== null) {
+        progressTimer.startTimer();
+    }
+})
+
+socket.on('game:reset:timer', () => {
+    if (progressTimer !== null) {
+        progressTimer.reset();
+    }
+});
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// DASHBOARD BITS - STATUS ////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+const gameStat = document.getElementById('game-stats').querySelector('h1');
+
+function calculatePoints (obj) {
+    const pointObj = Object.assign({}, obj.score);
+    const teams = ['team1', 'team2'];
+    const temp = {};
+
+    for (const team of teams) {
+        let teampoints = 0;
+
+        for (const round in pointObj) {
+            teampoints += pointObj[round][team];
+        }
+        temp[team] = teampoints;
+    }
+
+    pointObj.total = temp;
+
+    return pointObj;
+}
+
+function gameStatistic (obj) {
+    const points = calculatePoints(obj);
+
+    gameStat.textContent = `Ronde: ${obj.round}. Totaal punten: ${obj.teams.team1}: ${points.total.team1} |  ${obj.teams.team2}: ${points.total.team2}`;
+}
+
+socket.on('game:ongoing:statistics', (data) => {
+    gameStatistic(data);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+/// DASHBOARD BITS - PIE-CHARTS ////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////

@@ -1,70 +1,95 @@
 <!doctype html>
 <html lang="NL-nl">
-    <head>
-        <meta name="robots" content="none">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta name="viewport" content="width=device-width, user-scalable=yes">
+<head>
+    <meta name="robots" content="none">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=yes">
 
-        <meta name="theme-color" content="#1e5252" />
+    <meta name="theme-color" content="#1e5252" />
 
-        <title>Glow in the π</title>
+    <title>Glow in the π</title>
 
-        <link href="/css/stylesheet.css" rel="stylesheet">
+    <link href="/css/stylesheet.css" rel="stylesheet">
+    <link href="/css/modal.css" rel="stylesheet">
 
-        <script src="/socket.io/socket.io.js"></script>
-        <script defer src="/js/messagemodal.js"></script>
-        <script defer src="/js/script.js"></script>
-    </head>
+    <script src="/socket.io/socket.io.js"></script>
+    <script defer src="/js/messagemodal.js"></script>
+    <script defer src="/js/script.js"></script>
+</head>
 <body>
-    <div class="modal-curtain hidden"><div id="modal" class="modal"><p id="modal-content"></p></div></div>
-    <header><h1>Glow in the π</h1></header>
-    <article id="dashboard">
+    <div class="modal-curtain hidden"><div id="modal" class="modal"><p class="modal-content" id="modal-content"></p></div></div>
 
+    <header><h1 class="neon">Glow in the π</h1><button id="toggle-navigatie">&#9776;</button></header>
+
+    <nav>
+        <ul class="navigation">
+            <li data-action="dashboard">Dashboard</li>
+            <li data-action="admin">Configuratie</li>
+            <li data-action="station">Posten</li>
+        </ul>
+    </nav>
+
+    <article id="dashboard" class="hidden">
+        <div id="game-pies">TAARTEN</div>
+
+        <div id="game-stats"><h1 class="neon-hover"></h1></div>
+
+        <div id="round-countdown" class="count-down-timer"><span class="neon-hover" id="remaining-time">Wacht op startsein</span><span id="progress-bar"></span></div>
     </article>
-    <article id="admin">
+
+
+
+    <article id="admin" class="hidden">
         <section>
             <h2>Opzetten nieuw spel:</h2>
             <form id="new-game" class="admin-form" action="#" method="post">
                 <p>Veld leeg laten geeft standaard waarde.</p>
                 <label><span>Rondes: </span><input data-field type="number" placeholder="3" name="rounds" /></label>
                 <label><span>Rondetijd (min): </span><input data-field type="number" placeholder="30" name="roundTime" /></label>
-                <label><span>Spelnaam: </span><input data-field type="text" placeholder="jota" name="roundName" /></label>
+                <label><span>Spelnaam: </span><input data-field type="text" placeholder="JOTA-JOTI 2017" name="roundName" /></label>
                 <label><span>Team 1: </span><input data-field type="text" placeholder="Smokkelaars" name="team1.name" /></label>
                 <label><span>Team 2: </span><input data-field type="text" placeholder="Douaniers" name="team2.name" /></label>
                 <label><span>Punten (r, g, b): </span><input data-field type="text" placeholder="1, 5, 9" name="points" /></label>
                 <input type="submit" value="Nieuw spel" name="new" />
             </form>
         </section><section>
-            <h2>Spellen wachtrij</h2>
+            <h2>Spellen wachtrij:</h2>
             <ul class="games-list" id="games-queue"></ul>
         </section><section>
-            <h2>Actieve spellen</h2>
-            <ul class="games-list" id="games-active"></ul>
+            <h2>Actieve spellen:</h2>
+            <ul class="games-list no-click" id="games-active"></ul>
         </section>
     </article>
-    <article id="station">
-        <div>
-            <h2>Kies een spel</h2>
-            <ul class="games-list" id="games-picker"></ul>
-        </div>
 
-        <h2>Post Punten App</h2>
-        <div class="small-status"></div>
-        <span id="station-delegation">
-            <section id="team1">
-                <h3 class="team-name"></h3>
-                <div><button data-action="team1:red:plus">+</button><span>Rood/Roze</span><button data-action="team1:red:min">-</button></div>
-                <div><button data-action="team1:green:plus">+</button><span>Groen/Geel</span><button data-action="team1:green:min">-</button></div>
-                <div><button data-action="team1:blue:plus">+</button><span>Blauw/Paars</span><button data-action="team1:blue:min">-</button></div>
-            </section>
-            <section id="team2">
-                <h3 class="team-name"></h3>
-                <div><button data-action="team2:red:plus">+</button><span>Rood/Roze</span><button data-action="team2:red:min">-</button></div>
-                <div><button data-action="team2:green:plus">+</button><span>Groen/Geel</span><button data-action="team2:green:min">-</button></div>
-                <div><button data-action="team2:blue:plus">+</button><span>Blauw/Paars</span><button data-action="team2:blue:min">-</button></div>
-            </section>
-        </span>
+
+
+    <article id="station" class="hidden">
+        <section id="station-choose-game">
+            <div>
+                <h2>Kies een spel:</h2>
+                <ul class="games-list" id="games-picker"></ul>
+            </div>
+        </section>
+
+        <section id='station-game-chosen' class="section-disabled">
+            <h2>Post Punten App</h2>
+            <div class="small-status"></div>
+            <span id="station-delegation">
+                <section id="team1" class="team-section">
+                    <h3 class="team-name">Geen spel geselecteerd</h3>
+                    <div><button data-action="team1:red:plus">+</button><span>Rood/Roze</span><button data-action="team1:red:min">-</button></div>
+                    <div><button data-action="team1:green:plus">+</button><span>Groen/Geel</span><button data-action="team1:green:min">-</button></div>
+                    <div><button data-action="team1:blue:plus">+</button><span>Blauw/Paars</span><button data-action="team1:blue:min">-</button></div>
+                </section>
+                <section id="team2" class="team-section">
+                    <h3 class="team-name">Geen spel geselecteerd</h3>
+                    <div><button data-action="team2:red:plus">+</button><span>Rood/Roze</span><button data-action="team2:red:min">-</button></div>
+                    <div><button data-action="team2:green:plus">+</button><span>Groen/Geel</span><button data-action="team2:green:min">-</button></div>
+                    <div><button data-action="team2:blue:plus">+</button><span>Blauw/Paars</span><button data-action="team2:blue:min">-</button></div>
+                </section>
+            </span>
+        </section>
     </article>
-    </body>
+</body>
 </html>
