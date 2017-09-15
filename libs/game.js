@@ -190,7 +190,7 @@ module.exports = class Game {
                     this.game.emitter.emit('game-ended', {
                         id: this.id,
                         name: this.name,
-                        ended: this.ended;
+                        ended: this.ended
                     });
                 }
             } else {
