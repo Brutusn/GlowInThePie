@@ -21,6 +21,7 @@ const server = http.Server(app);
 const io = socketio(server);
 
 app.use(express.static('www'));
+app.use('/scripts', express.static(__dirname + '/node_modules/chart.js/dist/'));
 server.listen(8080);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +159,7 @@ io.on('connection', (socket) => {
 
         // Focussed a game, so send small status.
         socket.emit('game:status:small', games[data.id].smallStatus());
-        socket.emit('game:statistics', games[data.id].statistics);
+        socket.emit('game:initial:statistics', games[data.id].statistics);
 
         if (games[data.id].started) {
             socket.emit('game:started');

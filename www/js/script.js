@@ -295,6 +295,11 @@ class Timer {
         this.startTimer();
     }
 
+    stopTime () {
+        this.clearTimer();
+        this.timeDisplay.textContent = "Spel is afgelopen!";
+    }
+
     msToMinute (ms) {
         return parseInt((ms / (1000 * 60)) % 60);
     }
@@ -369,9 +374,100 @@ function gameStatistic (obj) {
 }
 
 socket.on('game:ongoing:statistics', (data) => {
+    if (progressTimer && data.ended) {
+        progressTimer.stopTime();
+    }
+
     gameStatistic(data);
+    createCharts(data);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DASHBOARD BITS - PIE-CHARTS ////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+// game-pies
+const pies = document.getElementById('game-pies');
+const availableCharts = {};
+
+function createCharts (obj) {
+    // If pies are created, skip it...
+    if (pies.children.length > 0) {
+        updataChart(obj);
+        return;
+    } else {
+        createChartElements(obj);
+    }
+
+    const teamNameArray = Object.values(obj.teams);
+
+    for (let i = 0; i < obj.rounds; i++) {
+        const canvas = document.getElementById(obj.id + i);
+        const roundPoints = Object.values(obj.score[i + 1]);
+
+        availableCharts[obj.id + (i + 1)] = new Chart(canvas, {
+            type: 'pie',
+            data: {
+                labels: teamNameArray,
+                datasets: [{
+                    data: roundPoints,
+                    backgroundColor: [
+                        '#49fb35',
+                        '#228DFF'
+                    ],
+                    borderColor: [
+                        '#F7CA18',
+                        '#F7CA18'
+                    ],
+                    borderWidth: 5
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                title: {
+                    display: true,
+                    position: 'bottom',
+                    fontSize: 40,
+                    fontColor: '#FFFFFF',
+                    text: 'Ronde: ' + (i + 1)
+                },
+                legend: {
+                    labels: {
+                        fontSize: 20,
+                        fontColor: '#FFFFFF'
+                    }
+                }
+            }
+        });
+
+        availableCharts[obj.id + (i + 1)].resize();
+    }
+}
+
+function createChartElements (obj) {
+    if (pies.children.length > 0) {
+        return;
+    }
+    const docFrag = document.createDocumentFragment();
+
+    for (let i = 0; i < obj.rounds; i++) {
+        const div = document.createElement('div');
+        const canvas = document.createElement('canvas');
+
+        div.classList.add('chart-container');
+        canvas.id = obj.id + i;
+
+        div.appendChild(canvas);
+        docFrag.appendChild(div);
+    }
+
+    pies.appendChild(docFrag);
+}
+
+function updataChart (obj) {
+    const roundChart = availableCharts[obj.id + obj.round];
+    const roundPoints = Object.values(obj.score[obj.round]);
+
+    roundChart.data.datasets[0].data = roundPoints;
+
+    roundChart.update();
+}

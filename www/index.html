@@ -14,6 +14,7 @@
     <link href="/css/modal.css" rel="stylesheet">
 
     <script src="/socket.io/socket.io.js"></script>
+    <script defer src="/scripts/Chart.min.js"></script>
     <script defer src="/js/messagemodal.js"></script>
     <script defer src="/js/script.js"></script>
 </head>
@@ -31,11 +32,11 @@
     </nav>
 
     <article id="dashboard" class="hidden">
-        <div id="game-pies">TAARTEN</div>
+        <div id="game-pies"></div>
 
         <div id="game-stats"><h1 class="neon-hover"></h1></div>
 
-        <div id="round-countdown" class="count-down-timer"><span class="neon-hover" id="remaining-time">Wacht op startsein</span><span id="progress-bar"></span></div>
+        <div id="round-countdown" class="count-down-timer"><span class="neon-blink" id="remaining-time">Wacht op startsein</span><span id="progress-bar"></span></div>
     </article>
 
 

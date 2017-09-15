@@ -40,7 +40,7 @@ module.exports = class Game {
     constructor (options) {
         this.game = Object.assign({}, defaultOptions, options);
         this.currentRound = 0;
-        this.previousRounds = [];
+        this.ended = false;
 
         // Replaces all the non characters to nothing..
         this.internalId = this.game.roundName.replace(/[^a-zA-Z0-9]+/g, '').toLowerCase();
@@ -184,11 +184,14 @@ module.exports = class Game {
                     });
                     this.startTimer();
                 } else {
+                    this.ended = true;
+                    this.game.started = false;
+
                     this.game.emitter.emit('game-ended', {
                         id: this.id,
-                        name: this.name
+                        name: this.name,
+                        ended: this.ended;
                     });
-                    this.game.started = false;
                 }
             } else {
                 if (this.roundTimeLeft === this.roundTimeLeftWarning) {
@@ -228,6 +231,8 @@ module.exports = class Game {
             id: this.id,
             name: this.name,
             started: this.started,
+            rounds: this.game.rounds,
+            ended: this.ended,
             round: this.currentRound,
             teams: this.teamNames,
             score: this.calculateAllRounds(),

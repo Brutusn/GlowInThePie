@@ -41,11 +41,24 @@ ul {
 .neon {
     transition: all .5s ease;
     color: var(--neon-blue);
-    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #228DFF, 0 0 35px #228DFF, 0 0 40px #228DFF, 0 0 50px #228DFF, 0 0 75px #228DFF;
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px var(--neon-blue), 0 0 35px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 50px var(--neon-blue), 0 0 75px var(--neon-blue);
 }
 .neon:hover, .neon-hover {
     color: var(--white);
     text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px var(--neon-blue), 0 0 70px var(--neon-blue), 0 0 80px var(--neon-blue), 0 0 100px var(--neon-blue), 0 0 150px var(--neon-blue);
+}
+.neon-blink {
+    color: var(--white);
+    animation: neon2 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes neon2 {
+    from {
+        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px var(--neon-blue), 0 0 70px var(--neon-blue), 0 0 80px var(--neon-blue), 0 0 100px var(--neon-blue), 0 0 150px var(--neon-blue);
+    }
+    to {
+        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px var(--neon-blue), 0 0 35px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 50px var(--neon-blue), 0 0 75px var(--neon-blue);
+    }
 }
 
 /* HEADER */
@@ -255,10 +268,7 @@ section h2, section h3 {
 }
 
 #dashboard {
-    background-color: var(--dark-blue);
-}
-#dashboard > div {
-
+    background-color: var(--dark);
 }
 #dashboard > div:nth-of-type(2) {
     flex-grow: 2;
@@ -272,6 +282,8 @@ section h2, section h3 {
     position: relative;
 
     text-align: center;
+
+    background-color: var(--dark-blue);
 
     border-top: 2px solid var(--neon-blue);
 }
@@ -291,4 +303,23 @@ section h2, section h3 {
     display: block;
     position: relative;
     z-index: 5;
+}
+
+/* CHARTS */
+#game-pies {
+    display: flex;
+    justify-content: space-around;
+}
+.chart-container {
+    position: relative;
+
+    height: 600px;
+    width: 600px;
+    flex-basis: 600px;
+
+    padding: 0;
+    margin: 0;
+}
+.chart-container:not(:last-of-type) {
+    margin-right: 1em;
 }
