@@ -47,6 +47,7 @@ socket.on('game:status:small', (data) => {
 
 // Force full screen height of dashboard.
 const header = document.querySelector('header');
+const originalHeaderText = document.querySelector('header h1').textContent;
 const dashboard = document.getElementById('dashboard');
 
 function setDashboardHeight () {
@@ -262,7 +263,7 @@ socket.on('game:initial:statistics', (data) => {
     createCharts(data);
 
     // Append game name to header...
-    document.querySelector('header h1').textContent += ` - ${data.name}`;
+    document.querySelector('header h1').textContent = `${originalHeaderText} - ${data.name}`;
 });
 
 socket.on('game:started', () => {
