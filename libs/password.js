@@ -2,6 +2,7 @@
  * File to handle passwords. absolutely not secure in any way, just to make it
  * a little harder to hack the game during playtime.
  */
+'use strict';
 
 const crypto = require('crypto');
 
@@ -18,7 +19,7 @@ module.exports.compare = (pass) => {
     if (getHash(pass) === passwordHash) {
         bool = true;
     } else {
-        console.warn('Wrong password entered:', pass);
+        console.warn('Wrong password entered: ', pass);
     }
 
     return bool;

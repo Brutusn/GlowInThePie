@@ -62,7 +62,6 @@ ul {
 }
 
 /* HEADER */
-
 header {
     display: flex;
 
@@ -125,13 +124,6 @@ nav {
 
 
 /* PAGES */
-#master-flexbox {
-    display: flex;
-    flex-direction: column;
-
-    justify-content: flex-start;
-}
-
 article {
     display: flex;
     flex-direction: column;

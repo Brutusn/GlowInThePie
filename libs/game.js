@@ -1,6 +1,7 @@
+'use strict';
+
 // The game handler code.
 const roundTimeStep = 1000;
-
 const defaultOptions = {
     rounds: 3,
     roundTime: 30,
@@ -23,9 +24,11 @@ const defaultOptions = {
 function minutesToMs (min) {
     return min * 60 * 1000;
 }
+
 function msToMinute (ms) {
     return parseInt((ms / (1000 * 60)) % 60);
 }
+
 function msToTime (duration) {
     let seconds = parseInt((duration / 1000) % 60);
     let minutes = msToMinute(duration);
@@ -226,7 +229,6 @@ module.exports = class Game {
         return this.game.started;
     }
     get statistics () {
-        // TODO Maybe append it...
         return {
             id: this.id,
             name: this.name,

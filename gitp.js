@@ -1,6 +1,8 @@
 /**
  * General server code.
  */
+'use strict';
+
 const http = require('http');
 const eventEmit = require('events');
 
@@ -21,7 +23,11 @@ const server = http.Server(app);
 const io = socketio(server);
 
 app.use(express.static('www'));
+
+// This is done to get the chart script directly from the node_modules without
+// exposing the entire folder by accident.
 app.use('/scripts', express.static(__dirname + '/node_modules/chart.js/dist/'));
+
 server.listen(8080);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,6 +77,7 @@ io.on('connection', (socket) => {
             message
         });
     }
+
     function checkPassword (obj) {
         if (obj.password === undefined) {
             return false;
@@ -82,6 +89,7 @@ io.on('connection', (socket) => {
 
         return false;
     }
+
     function isFalseData (obj) {
         if (!socket.allowedSocket && !checkPassword(obj)) {
             growl('error', 'Ongeldig wachtwoord, jammer de bammer.');
