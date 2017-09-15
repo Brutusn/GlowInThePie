@@ -326,6 +326,10 @@ socket.on('game:initial:statistics', (data) => {
     }
 
     gameStatistic(data);
+    createCharts(data);
+
+    // Append game name to header...
+    document.querySelector('header h1').textContent += ` - Spel: ${data.name}`;
 });
 
 socket.on('game:started', () => {
@@ -379,7 +383,7 @@ socket.on('game:ongoing:statistics', (data) => {
     }
 
     gameStatistic(data);
-    createCharts(data);
+    updataChart(data);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -464,6 +468,10 @@ function createChartElements (obj) {
 }
 
 function updataChart (obj) {
+    if (pies.children.length === 0) {
+        // Charts not created...
+        createCharts(obj);
+    }
     const roundChart = availableCharts[obj.id + obj.round];
     const roundPoints = Object.values(obj.score[obj.round]);
 

@@ -274,6 +274,15 @@ section h2, section h3 {
     flex-grow: 2;
 }
 
+/* Game statitics */
+.game-stats {
+    color: white;
+    line-height: 2;
+    font-size: 3vw;
+    color: var(--white);
+    text-align: center;
+}
+
 /* Countdown timer */
 .count-down-timer {
     margin: -1em;
