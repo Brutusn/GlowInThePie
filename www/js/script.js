@@ -329,7 +329,7 @@ socket.on('game:initial:statistics', (data) => {
     createCharts(data);
 
     // Append game name to header...
-    document.querySelector('header h1').textContent += ` - Spel: ${data.name}`;
+    document.querySelector('header h1').textContent += ` - ${data.name}`;
 });
 
 socket.on('game:started', () => {

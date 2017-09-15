@@ -78,7 +78,13 @@ header h1 {
     flex-grow: 1;
 
     font-size: inherit;
-    padding-left: 1em;
+    padding: 1em;
+    margin: 0;
+
+    overflow: hidden;
+    min-width: 300px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 header button {
     flex: 0;
