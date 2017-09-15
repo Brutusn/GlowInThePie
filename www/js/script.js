@@ -100,7 +100,6 @@ document.getElementById('games-queue').onclick = (evt) => {
     appendPassword(obj);
 
     socket.emit('game:start', obj);
-    socket.emit('game:focus', obj);
 
     // Remove the clicked LI item.
     evt.target.parentNode.parentNode.removeChild(evt.target.parentNode);

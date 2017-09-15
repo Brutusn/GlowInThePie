@@ -76,9 +76,6 @@ module.exports = class Game {
     }
 
     // POINTS...
-    validatePointAction (team, colour, action) {
-        return ['team1', 'team2'].includes(team) && ['red', 'green', 'blue'].includes(colour) && ['plus', 'min'].includes(action);
-    }
     pointsChanged () {
         const points = this.calculatePoints()
 
@@ -143,6 +140,9 @@ module.exports = class Game {
         } else {
             this.game[team][roundNr][colour] -= this.game.points[colour];
         }
+    }
+    validatePointAction (team, colour, action) {
+        return ['team1', 'team2'].includes(team) && ['red', 'green', 'blue'].includes(colour) && ['plus', 'min'].includes(action);
     }
     handlePoints (team, colour, action) {
         if (!this.validatePointAction(team, colour, action)) {

@@ -24,6 +24,35 @@ app.use(express.static('www'));
 server.listen(8080);
 
 ////////////////////////////////////////////////////////////////////////////////
+// Game events.
+emitter.on('points-changed', (data) => {
+    io.to(data.id).emit('game:ongoing:statistics', games[data.id].statistics);
+    io.to(data.id).emit('game:status:small', data.smallStatus);
+});
+emitter.on('round-changed', (data) => {
+    io.to(data.id).emit('game:ongoing:statistics', games[data.id].statistics);
+    io.to(data.id).emit('game:reset:timer', {});
+    io.to(data.id).emit('growl', {
+        type: 'info',
+        message: 'Ronde is over! Nu in ronde: ' + data.round
+    });
+});
+emitter.on('game-ended', (data) => {
+    io.to(data.id).emit('game:ongoing:statistics', games[data.id].statistics);
+
+    io.to(data.id).emit('growl', {
+        type: 'success',
+        message: `Spel: ${data.name} is afgelopen!`
+    });
+});
+emitter.on('time-warning', (data) => {
+    io.to(data.id).emit('growl', {
+        type: 'warning',
+        message: `Ronde ${data.round} duurt nog ${data.minutes} minuten`
+    });
+});
+
+////////////////////////////////////////////////////////////////////////////////
 // Socket.io events.
 io.on('connection', (socket) => {
     socket.allowedSocket = false;
@@ -32,7 +61,7 @@ io.on('connection', (socket) => {
         let messenger = null;
 
         if (broadcast) {
-            messenger = io.of('');
+            messenger = io.to(socket.focussedGame);
         } else {
             messenger = socket;
         }
@@ -64,6 +93,14 @@ io.on('connection', (socket) => {
         return false;
     }
 
+    function gameFocus (obj) {
+        if (socket.focussedGame !== null) {
+            socket.leave(socket.focussedGame);
+        }
+        socket.focussedGame = obj.id;
+        socket.join(obj.id);
+    }
+
     // Send queued and active games.
     function sendGames () {
         for (const prop in games) {
@@ -83,12 +120,12 @@ io.on('connection', (socket) => {
     // On initial load
     sendGames();
 
-
     socket.on('game:create', (data) => {
         if (isFalseData(data)) {
             return;
         }
 
+        // Add the event emitter.
         data.emitter = emitter;
 
         let newgame = new Game(data);
@@ -101,7 +138,7 @@ io.on('connection', (socket) => {
             games[newgame.id] = newgame;
         }
 
-        socket.emit('game:initialized', {
+        io.of('').emit('game:initialized', {
             id: newgame.id,
             name: newgame.name,
             active: newgame.started
@@ -117,7 +154,7 @@ io.on('connection', (socket) => {
             return;
         }
 
-        socket.focussedGame = data.id;
+        gameFocus(data);
 
         // Focussed a game, so send small status.
         socket.emit('game:status:small', games[data.id].smallStatus());
@@ -126,43 +163,6 @@ io.on('connection', (socket) => {
         if (games[data.id].started) {
             socket.emit('game:started');
         }
-
-        games[data.id].emitter.on('points-changed', (data) => {
-            if (socket.focussedGame !== data.id) {
-                // False listener, stop here.
-                return;
-            }
-
-            io.of('').emit('game:ongoing:statistics', games[data.id].statistics);
-            io.of('').emit('game:status:small', data.smallStatus);
-        });
-        games[data.id].emitter.on('round-changed', (data) => {
-            if (socket.focussedGame !== data.id) {
-                // False listener, stop here.
-                return;
-            }
-
-            io.of('').emit('game:ongoing:statistics', games[data.id].statistics);
-            io.of('').emit('game:reset:timer', {});
-            growl('info', 'Ronde is over! Nu in ronde: ' + data.round);
-        });
-        games[data.id].emitter.on('game-ended', (data) => {
-            if (socket.focussedGame !== data.id) {
-                // False listener, stop here.
-                return;
-            }
-
-            io.of('').emit('game:ongoing:statistics', games[data.id].statistics);
-
-            growl('success', `Spel: ${data.name} is afgelopen!`);
-        });
-        games[data.id].emitter.on('time-warning', (data) => {
-            if (socket.focussedGame !== data.id) {
-                // False listener, stop here.
-                return;
-            }
-            growl('warning', `Ronde ${data.round} duurt nog ${data.minutes} minuten`);
-        });
     });
 
     socket.on('game:points', (data) => {
@@ -174,7 +174,7 @@ io.on('connection', (socket) => {
         const selectedGame = games[gameId]
 
         if (selectedGame === undefined || !selectedGame.started) {
-            growl('error', 'Geselecteerd spel niet gevonden of gestart.');
+            growl('error', 'Geselecteerd spel niet gestart.');
             return;
         }
 
@@ -201,12 +201,14 @@ io.on('connection', (socket) => {
 
         const id = data.id;
         if (games[id] !== undefined) {
+            gameFocus(data);
+
             games[id].start();
 
             sendGames();
 
-            io.of('').emit('game:status:small', games[id].smallStatus());
-            io.of('').emit('game:initial:statistics', games[id].statistics);
+            io.to(data.id).emit('game:status:small', games[id].smallStatus());
+            io.to(data.id).emit('game:initial:statistics', games[id].statistics);
 
             growl('info', `Spel: ${games[id].name} is gestart!`, true);
         } else {
