@@ -10,6 +10,7 @@
     --neon-green: #49fb35;
     --neon-blue: #228DFF;
     --gray: #ABB7B7;
+    --bright-red: #CF000F;
 }
 
 html, body, ul {
@@ -28,6 +29,12 @@ html {
 
     font-family: 'Segoe UI', 'Helvetica', sans-serif;
 }
+
+button:active {
+    background-color: var(--neon-blue);
+    color: var(--white);
+}
+
 
 .hidden {
     display: none !important;
@@ -54,10 +61,10 @@ ul {
 
 @keyframes neon2 {
     from {
-        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px var(--neon-blue), 0 0 70px var(--neon-blue), 0 0 80px var(--neon-blue), 0 0 100px var(--neon-blue), 0 0 150px var(--neon-blue);
+        text-shadow: 0 0 10px var(--dark), 0 0 20px var(--neon-blue), 0 0 30px var(--neon-green), 0 0 40px var(--bright-red), 0 0 70px var(--neon-blue), 0 0 80px var(--neon-green), 0 0 100px var(--neon-blue), 0 0 150px var(--yellow);
     }
     to {
-        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px var(--neon-blue), 0 0 35px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 50px var(--neon-blue), 0 0 75px var(--neon-blue);
+        text-shadow: 0 0 5px var(--dark), 0 0 10px var(--bright-red), 0 0 15px var(--yellow), 0 0 20px var(--bright-red), 0 0 35px var(--neon-blue), 0 0 40px var(--neon-green), 0 0 50px var(--neon-blue), 0 0 75px var(--yellow);
     }
 }
 
@@ -200,6 +207,8 @@ section h2, section h3 {
     padding: .5em;
     font-size: 150%;
 
+    text-shadow: 1px 1px 1px var(--dark);
+
     border-radius: 5px;
 }
 .team-section > div:not(:last-of-type) {
@@ -207,13 +216,13 @@ section h2, section h3 {
 }
 
 .team-section > div:nth-of-type(1) {
-    background-image: linear-gradient(to right, #CF000F 0%, #D91E18 100%);
+    background-image: linear-gradient(to top, #87D37C 0%, #FFF200 100%);
 }
 .team-section > div:nth-of-type(2) {
-    background-image: linear-gradient(to top, var(--neon-green) 0%, #87D37C 100%);
+    background-image: linear-gradient(to top, #D2527F 0%, #FF0DBF 100%);
 }
 .team-section > div:nth-of-type(3) {
-    background-image: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+    background-image: linear-gradient(to top, #FF8000 0%, #F89406 100%);
 }
 .team-section > div button {
     padding: .25em .75em;

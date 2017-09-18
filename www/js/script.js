@@ -346,8 +346,8 @@ function createCharts (obj) {
                 datasets: [{
                     data: roundPoints,
                     backgroundColor: [
-                        '#49fb35',
-                        '#228DFF'
+                        '#BDB76B',
+                        '#CF000F'
                     ],
                     borderColor: [
                         '#F7CA18',
