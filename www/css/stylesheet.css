@@ -269,7 +269,7 @@ section h2, section h3 {
     pointer-events: none;
 }
 
-.small-status {
+.small-status-wrap {
     margin: .5em;
     font-size: 70%;
 }

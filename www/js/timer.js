@@ -4,9 +4,12 @@ class Timer {
     constructor (obj) {
         this.progressBar = obj.progressBarElement;
         this.timeDisplay = obj.timeDisplayElement;
+        this.roundInfo = obj.roundInfoElement;
 
         this.totalTime = obj.totalTime;
         this.timeLeft = obj.currentTime;
+
+        this.round = obj.round;
 
         this.timeStep = 1000;
         this.timer = null;
@@ -16,7 +19,8 @@ class Timer {
         this.clearTimer();
 
         this.timer = window.setInterval(() => {
-            this.timeLeft -= this.timeStep;
+            // Always remove 1 second. Although sometimes (based on the factor) the time substracted more often.
+            this.timeLeft -= 1000;
 
             this.display();
             this.setProgress();
@@ -25,11 +29,14 @@ class Timer {
             if (this.timeLeft <= 0) {
                 this.clearTimer();
             }
-        }, this.timeStep);
+        }, this.timeFactor);
     }
 
     display () {
-        this.timeDisplay.textContent = this.msToTime(this.timeLeft);
+        const current = this.msToTime(this.timeLeft);
+
+        this.timeDisplay.textContent = current;
+        this.roundInfo.textContent = `Ronde: ${this.round} (${current}). `;
     }
     setProgress () {
         const partLeft = this.totalTime - this.timeLeft;
@@ -65,5 +72,20 @@ class Timer {
         seconds = (seconds < 10) ? "0" + seconds : seconds;
 
         return minutes + ":" + seconds;
+    }
+
+    get timeFactor () {
+        return this.timeStep;
+    }
+    set timeFactor (factor = 1) {
+        // Bases on the original 1000 ms
+        const base = 1000;
+        this.timeStep = base * factor;
+
+        this.startTimer();
+    }
+    // Shouldn't be part of the timer.. but is for now
+    roundNr(nr) {
+        this.round = nr;
     }
 }

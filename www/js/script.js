@@ -256,8 +256,7 @@ socket.on('game:initial:statistics', (data) => {
     if (progressTimer === null) {
         data.progressBarElement = document.getElementById('progress-bar');
         data.timeDisplayElement = document.getElementById('remaining-time');
-        //data.roundInfoElement = document.getElementById('round-info');
-        //dat
+        data.roundInfoElement = document.getElementById('round-info');
 
         progressTimer = new Timer(data);
     }
@@ -316,8 +315,11 @@ function gameStatistic (obj) {
 }
 
 socket.on('game:ongoing:statistics', (data) => {
-    if (progressTimer && data.ended) {
-        progressTimer.stopTime();
+    if (progressTimer) {
+        progressTimer.roundNr(data.round);
+        if (data.ended) {
+            progressTimer.stopTime();
+        }
     }
 
     gameStatistic(data);

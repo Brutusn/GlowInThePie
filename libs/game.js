@@ -75,7 +75,7 @@ module.exports = class Game {
             return `Spel: ${this.name}, is nog niet gestart`;
         }
 
-        return `Ronde: ${this.currentRound}. ${this.game.team1.name}: ${points.team1} - ${this.game.team2.name}: ${points.team2}`;
+        return `${this.game.team1.name}: ${points.team1} - ${this.game.team2.name}: ${points.team2}`;
     }
 
     // POINTS...
