@@ -256,6 +256,8 @@ socket.on('game:initial:statistics', (data) => {
     if (progressTimer === null) {
         data.progressBarElement = document.getElementById('progress-bar');
         data.timeDisplayElement = document.getElementById('remaining-time');
+        //data.roundInfoElement = document.getElementById('round-info');
+        //dat
 
         progressTimer = new Timer(data);
     }
@@ -363,6 +365,7 @@ function createCharts (obj) {
             },
             options: {
                 maintainAspectRatio: false,
+                rotation: 0.5 * Math.PI,
                 title: {
                     display: true,
                     position: 'bottom',
