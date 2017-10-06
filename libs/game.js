@@ -2,24 +2,6 @@
 
 // The game handler code.
 const roundTimeStep = 1000;
-const defaultOptions = {
-    rounds: 3,
-    roundTime: 30,
-    roundName: 'JOTA-JOTI 2017',
-    started: false,
-    emitter: null,
-    points: {
-        red: 1,
-        green: 5,
-        blue: 9
-    },
-    team1: {
-        name: 'Smokkelaars'
-    },
-    team2: {
-        name: 'Douaniers'
-    }
-}
 
 function minutesToMs (min) {
     return min * 60 * 1000;
@@ -41,7 +23,25 @@ function msToTime (duration) {
 
 module.exports = class Game {
     constructor (options) {
-        this.game = Object.assign({}, defaultOptions, options);
+        this.defaults = {
+            rounds: 3,
+            roundTime: 30,
+            roundName: 'JOTA-JOTI 2017',
+            started: false,
+            emitter: null,
+            points: {
+                red: 1,
+                green: 5,
+                blue: 9
+            },
+            team1: {
+                name: 'Smokkelaars'
+            },
+            team2: {
+                name: 'Douaniers'
+            }
+        };
+        this.game = Object.assign({}, this.defaults, options);
         this.currentRound = 0;
         this.ended = false;
 
@@ -251,4 +251,4 @@ module.exports = class Game {
     get minutesLeft () {
         return msToMinute(this.roundTimeLeft);
     }
-}
+};

@@ -80,7 +80,7 @@ class Timer {
     set timeFactor (factor = 1) {
         // Bases on the original 1000 ms
         const base = 1000;
-        this.timeStep = base * factor;
+        this.timeStep = Math.round(base / factor);
 
         this.startTimer();
     }
