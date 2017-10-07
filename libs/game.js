@@ -56,6 +56,8 @@ module.exports = class Game {
 
         // Warn about time left..
         this.roundTimeLeftWarning = minutesToMs(5);
+
+        this.roundTimeStep = roundTimeStep;
     }
 
     start () {
@@ -206,7 +208,19 @@ module.exports = class Game {
                     });
                 }
             }
-        }, roundTimeStep);
+        }, this.roundTimeStep);
+    }
+
+    timeFactor (factor = 1) {
+        // Bases on the original 1000 ms
+        this.roundTimeStep = Math.round(roundTimeStep / factor);
+
+        this.startTimer();
+
+        this.emitter.emit('time-factor-change', {
+            id: this.id,
+            timeFactor: factor
+        })
     }
 
     // GETTERS!

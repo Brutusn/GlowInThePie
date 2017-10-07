@@ -11,6 +11,7 @@ class Timer {
 
         this.round = obj.round;
 
+        this.timeBase = 1000;
         this.timeStep = 1000;
         this.timer = null;
     }
@@ -20,7 +21,7 @@ class Timer {
 
         this.timer = window.setInterval(() => {
             // Always remove 1 second. Although sometimes (based on the factor) the time substracted more often.
-            this.timeLeft -= 1000;
+            this.timeLeft -= this.timeBase;
 
             this.display();
             this.setProgress();
@@ -61,7 +62,7 @@ class Timer {
         this.timeDisplay.textContent = "Spel is afgelopen!";
     }
 
-    msToMinute (ms) {
+    static msToMinute (ms) {
         return parseInt((ms / (1000 * 60)) % 60);
     }
     msToTime (duration) {
@@ -77,10 +78,11 @@ class Timer {
     get timeFactor () {
         return this.timeStep;
     }
-    set timeFactor (factor = 1) {
+    set timeFactor (factor) {
         // Bases on the original 1000 ms
-        const base = 1000;
-        this.timeStep = Math.round(base / factor);
+        factor = factor || 1;
+
+        this.timeStep = Math.round(this.timeBase / factor);
 
         this.startTimer();
     }

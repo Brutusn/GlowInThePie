@@ -59,6 +59,14 @@ emitter.on('time-warning', (data) => {
     });
 });
 
+emitter.on('time-factor-change', (data) => {
+    io.to(data.id).emit('game:timefactor:changed', data);
+    io.to(data.id).emit('growl', {
+        type: 'info',
+        message: `Pas op! De tijd is versneld of vertraagd naar factor: ${data.timeFactor}`
+    });
+});
+
 ////////////////////////////////////////////////////////////////////////////////
 // Socket.io events.
 io.on('connection', (socket) => {
@@ -180,7 +188,7 @@ io.on('connection', (socket) => {
         }
 
         const gameId = socket.focussedGame;
-        const selectedGame = games[gameId]
+        const selectedGame = games[gameId];
 
         if (selectedGame === undefined || !selectedGame.started) {
             growl('error', 'Geselecteerd spel niet gestart.');
@@ -223,5 +231,20 @@ io.on('connection', (socket) => {
         } else {
             growl('warning', 'Onbekent spel, kan dus niet starten.');
         }
+    });
+
+    socket.on('game:timefactor:change', (data) => {
+        if (isFalseData(data)) {
+            return;
+        }
+
+        const factor = parseInt(data.timeFactor, 10);
+
+        // Ignore if no game is focussed...
+        if (socket.focussedGame === null || isNaN(factor)) {
+            return;
+        }
+
+        games[socket.focussedGame].timeFactor(factor);
     });
 });

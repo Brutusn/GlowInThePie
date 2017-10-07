@@ -78,7 +78,7 @@ navElement.onclick = (evt) => {
 
         navElement.classList.toggle('hidden');
     }
-}
+};
 
 document.getElementById('toggle-navigatie').onclick = (evt) => {
     // First it will check if a page is visible, otherwise you can't hide the
@@ -230,7 +230,7 @@ document.getElementById('games-picker').onclick = (evt) => {
 
     // If game is chosen, hide the picker section.
     evt.target.parentNode.parentNode.parentNode.classList.add('hidden');
-}
+};
 
 document.getElementById('station-delegation').onclick = (evt) => {
     if (evt.target.nodeName !== 'BUTTON') {
@@ -276,11 +276,17 @@ socket.on('game:started', () => {
     if (progressTimer !== null) {
         progressTimer.startTimer();
     }
-})
+});
 
 socket.on('game:reset:timer', () => {
     if (progressTimer !== null) {
         progressTimer.reset();
+    }
+});
+
+socket.on('game:timefactor:changed', (data) => {
+    if (progressTimer !== null) {
+        progressTimer.timeFactor(data.timeFactor);
     }
 });
 
