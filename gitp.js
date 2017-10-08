@@ -238,10 +238,10 @@ io.on('connection', (socket) => {
             return;
         }
 
-        const factor = parseInt(data.timeFactor, 10);
+        const factor = parseFloat(data.timeFactor);
 
-        // Ignore if no game is focussed...
-        if (socket.focussedGame === null || isNaN(factor)) {
+        // Ignore if no game is focussed or the factor is not a string...
+        if (games[data.id] === undefined || isNaN(factor)) {
             return;
         }
 

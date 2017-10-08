@@ -109,6 +109,20 @@ document.getElementById('games-queue').onclick = (evt) => {
     // Remove the clicked LI item.
     evt.target.parentNode.parentNode.removeChild(evt.target.parentNode);
 };
+document.getElementById('games-active').onclick = (evt) => {
+    if (evt.target.nodeName !== 'BUTTON') {
+        return;
+    }
+
+    let obj = {
+        id: evt.target.parentNode.parentNode.getAttribute('data-game-id'),
+        timeFactor: evt.target.parentNode.querySelector('input').value
+    };
+
+    appendPassword(obj);
+
+    socket.emit('game:timefactor:change', obj);
+};
 
 function fillGames (data, ulId, addButton = true) {
     const ul = document.getElementById(ulId);
@@ -125,6 +139,10 @@ function fillGames (data, ulId, addButton = true) {
             button.textContent = 'Start';
             button.setAttribute('data-start', data.id);
             li.appendChild(button);
+        } else {
+            // We now have an active game, so we can add the inputs.
+            const timeFactorInputs = '<span><input type="number" value="1.0" min="0" max="10" step="0.1" /><button>Pas toe</button></span>';
+            li.innerHTML += timeFactorInputs;
         }
 
         ul.appendChild(li);
@@ -139,6 +157,7 @@ function fillPicker (data, ulId, active) {
         li = document.createElement('li');
         append = true;
     }
+
 
     li.innerHTML = `<b>${data.name}</b> (${active ? 'gestart' : 'niet gestart'})`;
     li.setAttribute('data-game-id', data.id);
@@ -263,6 +282,7 @@ socket.on('game:initial:statistics', (data) => {
 
     if (data.started) {
         progressTimer.startTimer();
+        progressTimer.timeFactor = data.timeFactor;
     }
 
     gameStatistic(data);
@@ -286,7 +306,7 @@ socket.on('game:reset:timer', () => {
 
 socket.on('game:timefactor:changed', (data) => {
     if (progressTimer !== null) {
-        progressTimer.timeFactor(data.timeFactor);
+        progressTimer.timeFactor = data.timeFactor;
     }
 });
 
@@ -329,7 +349,7 @@ socket.on('game:ongoing:statistics', (data) => {
     }
 
     gameStatistic(data);
-    updataChart(data);
+    updateChart(data);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -342,7 +362,7 @@ const availableCharts = {};
 function createCharts (obj) {
     // If pies are created, skip it...
     if (pies.children.length > 0) {
-        updataChart(obj);
+        updateChart(obj);
         return;
     } else {
         createChartElements(obj);
@@ -414,7 +434,7 @@ function createChartElements (obj) {
     pies.appendChild(docFrag);
 }
 
-function updataChart (obj) {
+function updateChart (obj) {
     if (pies.children.length === 0) {
         // Charts not created...
         createCharts(obj);

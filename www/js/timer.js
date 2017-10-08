@@ -62,7 +62,7 @@ class Timer {
         this.timeDisplay.textContent = "Spel is afgelopen!";
     }
 
-    static msToMinute (ms) {
+    msToMinute (ms) {
         return parseInt((ms / (1000 * 60)) % 60);
     }
     msToTime (duration) {

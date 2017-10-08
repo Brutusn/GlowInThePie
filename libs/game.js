@@ -58,6 +58,8 @@ module.exports = class Game {
         this.roundTimeLeftWarning = minutesToMs(5);
 
         this.roundTimeStep = roundTimeStep;
+
+        this.currentTimeFactor = 1;
     }
 
     start () {
@@ -215,6 +217,8 @@ module.exports = class Game {
         // Bases on the original 1000 ms
         this.roundTimeStep = Math.round(roundTimeStep / factor);
 
+        this.currentTimeFactor = factor;
+
         this.startTimer();
 
         this.emitter.emit('time-factor-change', {
@@ -253,7 +257,8 @@ module.exports = class Game {
             teams: this.teamNames,
             score: this.calculateAllRounds(),
             totalTime: this.roundTimeInMs,
-            currentTime: this.timeLeft
+            currentTime: this.timeLeft,
+            timeFactor: this.currentTimeFactor
         };
     }
     get timeLeft () {
