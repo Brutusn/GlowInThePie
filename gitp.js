@@ -245,6 +245,6 @@ io.on('connection', (socket) => {
             return;
         }
 
-        games[socket.focussedGame].timeFactor(factor);
+        games[data.id].timeFactor(factor);
     });
 });
