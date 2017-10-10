@@ -63,10 +63,11 @@ module.exports = class Game {
     }
 
     start () {
+        console.log(`Game ${this.game.roundName} is started!`);
         this.game.started = true;
         this.currentRound = 1;
 
-        this.startTimer();
+        this.startRound();
     }
 
     // STATUS
@@ -165,14 +166,17 @@ module.exports = class Game {
     }
 
     // TIMES
+    startRound () {
+        console.log('Start new round:', this.currentRound, '| For game:', this.game.roundName);
+        // Resets timeleft..
+        this.roundTimeLeft = this.roundTimeInMs;
+
+        this.startTimer();
+    }
     startTimer () {
         if (this.roundTimer !== null) {
             clearInterval(this.roundTimer);
         }
-
-        console.log("Start new round:", this.currentRound);
-        // Resets timeleft..
-        this.roundTimeLeft = this.roundTimeInMs;
 
         this.roundTimer = setInterval(() => {
             this.roundTimeLeft -= roundTimeStep;
@@ -185,14 +189,18 @@ module.exports = class Game {
                 if (this.currentRound < this.game.rounds) {
                     this.currentRound++;
 
+                    // Notify every player.
                     this.game.emitter.emit('round-changed', {
                         id: this.id,
                         round: this.currentRound
                     });
-                    this.startTimer();
+                    this.startRound();
                 } else {
+                    console.log(`Game ${this.game.roundName} has been ended!`);
                     this.ended = true;
                     this.game.started = false;
+
+                    // TODO: Write results to file.
 
                     this.game.emitter.emit('game-ended', {
                         id: this.id,
@@ -212,7 +220,6 @@ module.exports = class Game {
             }
         }, this.roundTimeStep);
     }
-
     timeFactor (factor = 1) {
         // Bases on the original 1000 ms
         this.roundTimeStep = Math.round(roundTimeStep / factor);
