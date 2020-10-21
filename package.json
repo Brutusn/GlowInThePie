@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/Brutusn/GlowInThePie#readme",
   "dependencies": {
-    "chart.js": "^2.7.2",
+    "chart.js": "^2.9.4",
     "express": "^4.16.0",
     "socket.io": "^2.0.3"
   }
