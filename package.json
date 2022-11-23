@@ -27,6 +27,6 @@
   "dependencies": {
     "chart.js": "^2.7.2",
     "express": "^4.16.0",
-    "socket.io": "^2.0.3"
+    "socket.io": "^2.5.0"
   }
 }
