@@ -6,6 +6,10 @@
 
 const crypto = require('crypto');
 
+if (!process.env.GITP_PASS) {
+    console.error("### No password provided on env variable 'GITP_PASS' ###");
+}
+
 const getHash = (string) => {
     return crypto.createHash('sha512').update(string).digest('hex');
 }
