@@ -26,7 +26,7 @@ module.exports = class Game {
         this.defaults = {
             rounds: 3,
             roundTime: 30,
-            roundName: 'JOTA-JOTI 2017',
+            roundName: `JOTA-JOTI ${new Date().getFullYear()}`,
             started: false,
             emitter: null,
             points: {

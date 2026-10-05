@@ -28,7 +28,7 @@ app.use(express.static('www'));
 // exposing the entire folder by accident.
 app.use('/scripts', express.static(__dirname + '/node_modules/chart.js/dist/'));
 
-server.listen(8080);
+server.listen(process.env.GITP_HOST ?? 8080);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Game events.
@@ -73,13 +73,8 @@ io.on('connection', (socket) => {
     socket.allowedSocket = false;
 
     function growl (type, message, broadcast) {
-        let messenger = null;
+        const messenger = broadcast ? io.to(socket.focussedGame) : socket;
 
-        if (broadcast) {
-            messenger = io.to(socket.focussedGame);
-        } else {
-            messenger = socket;
-        }
         messenger.emit('growl', {
             type,
             message
@@ -87,10 +82,7 @@ io.on('connection', (socket) => {
     }
 
     function checkPassword (obj) {
-        if (obj.password === undefined) {
-            return false;
-        }
-        if (pass.compare(obj.password)) {
+        if (pass.compare(obj.password ?? '')) {
             socket.allowedSocket = true;
             return true;
         }

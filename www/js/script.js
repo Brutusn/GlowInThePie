@@ -24,6 +24,8 @@ if (window.location.hash === '#reset') {
 ////////////////////////////////////////////////////////////////////////////////
 /// GLOBAL BITS ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+const availableCharts = {};
+
 function getPercentage (sub, total) {
     return Math.round((sub / total) * 100);
 }
@@ -56,8 +58,9 @@ const originalHeaderText = document.querySelector('header h1').textContent;
 const dashboard = document.getElementById('dashboard');
 
 function setDashboardHeight () {
-    // - 2px for the border.
-    dashboard.style.height = window.innerHeight - Math.floor(header.clientHeight) - 2 + 'px';
+    resizeCharts(100, 100);
+    dashboard.style.height = window.innerHeight - Math.floor(header.clientHeight) + 'px';
+    resizeCharts();
 }
 setDashboardHeight();
 
@@ -80,14 +83,13 @@ navElement.onclick = (evt) => {
     }
 };
 
-document.getElementById('toggle-navigatie').onclick = (evt) => {
+header.onclick = () => {
+    // This function is newer.. plus copy and paste
     // First it will check if a page is visible, otherwise you can't hide the
     // navigation, because that would be pointless.
     const visiblePages = pages.filter((page) => !page.classList.contains('hidden')).length > 0;
 
-    if (visiblePages) {
-        navElement.classList.toggle('hidden');
-    }
+    navElement.classList.toggle('hidden', !visiblePages);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -357,7 +359,6 @@ socket.on('game:ongoing:statistics', (data) => {
 ////////////////////////////////////////////////////////////////////////////////
 // game-pies
 const pies = document.getElementById('game-pies');
-const availableCharts = {};
 
 function createCharts (obj) {
     // If pies are created, skip it...
@@ -445,4 +446,13 @@ function updateChart (obj) {
     roundChart.data.datasets[0].data = roundPoints;
 
     roundChart.update();
+}
+
+
+
+function resizeCharts (height, width) {
+    for (const pie of Object.values(availableCharts)) {
+        console.log('hi', pie)
+        pie.resize(height, width);
+    }
 }
