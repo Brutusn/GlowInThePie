@@ -5,7 +5,7 @@
   "main": "gitp.js",
   "scripts": {
     "app": "node gitp.js",
-    "docker": "docker build -t gitp:latest . && docker image save -o ./docker/gitp-image.tar gitp"
+    "docker": "docker build -t gitp . && docker image save -o ./docker/gitp-image.tar gitp"
   },
   "repository": {
     "type": "git",
