@@ -1,5 +1,7 @@
 FROM node:lts-alpine AS node
-ENV GITP_PORT 7456
+
+ENV GITP_PORT=80
+ENV GITP_PASS=Welkom123
 
 WORKDIR /usr/src/www
 # Copy the server code

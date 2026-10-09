@@ -4,7 +4,8 @@
   "description": "Dashboard app for the real-life game",
   "main": "gitp.js",
   "scripts": {
-    "app": "node gitp.js"
+    "app": "node gitp.js",
+    "docker": "docker build -t gitp:latest . && docker image save -o ./docker/gitp-image.tar gitp"
   },
   "repository": {
     "type": "git",

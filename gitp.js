@@ -3,6 +3,8 @@
  */
 'use strict';
 
+console.log('Starting Glow in the π');
+
 const http = require('http');
 const eventEmit = require('events');
 
@@ -28,7 +30,9 @@ app.use(express.static('www'));
 // exposing the entire folder by accident.
 app.use('/scripts', express.static(__dirname + '/node_modules/chart.js/dist/'));
 
-server.listen(process.env.GITP_HOST ?? 8080);
+const port =  process.env.GITP_PORT;
+console.log(`Running on port: ${port}`);
+server.listen(port);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Game events.
