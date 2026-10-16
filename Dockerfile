@@ -1,6 +1,9 @@
 FROM node:lts-alpine AS node
 
-ENV GITP_PORT=80
+LABEL version="1.0.1"
+LABEL description="Glow in the π"
+
+ENV GITP_PORT=8654
 ENV GITP_PASS=Welkom123
 
 WORKDIR /usr/src/www
@@ -15,6 +18,6 @@ COPY /www ./www
 
 COPY gitp.js ./gitp.js
 
-EXPOSE $GITP_PORT
+EXPOSE 8654
 
 CMD ["node", "./gitp.js"]
